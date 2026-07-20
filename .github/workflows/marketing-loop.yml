@@ -1,0 +1,30 @@
+name: marketing-loop
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 27 * *'
+permissions:
+  contents: write
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run reader/analyzer
+        env:
+          FB_GRAPH_TOKEN: ${{ secrets.FB_GRAPH_TOKEN }}
+          EKA_CLIENT_ID: ${{ secrets.EKA_CLIENT_ID }}
+          EKA_CLIENT_SECRET: ${{ secrets.EKA_CLIENT_SECRET }}
+          EKA_DOCTOR_ID: ${{ secrets.EKA_DOCTOR_ID }}
+        run: python engine/loop_run.py
+      - name: Commit findings
+        run: |
+          git config user.name "khizer-bot"
+          git config user.email "khizer-bot@users.noreply.github.com"
+          git add findings.md
+          git commit -m "loop: monthly findings" || echo "no changes"
+          git push
+
