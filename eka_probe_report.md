@@ -1,16 +1,14 @@
-# eka.care API — connection probe
+# eka.care API — connection probe (paginated)
 
-client_id length: 16 | client_secret length: 28
+✅ Authenticated from the cloud (token expires_in=1800s).
 
-✅ Authenticated from the cloud — access token obtained (expires_in=1800s).
-✅ Appointments endpoint OK via `Authorization: Bearer` (window 2026-07-14→2026-07-20).
+## Last 7 days (2026-07-14 → 2026-07-20) — TRUE totals via pagination
+• pages fetched: 20
+• total appointments: **597**
+• by channel: {'Online-Appointment': 326, 'Walkin': 49, 'staff': 179, 'Doctor': 22, 'FOLLOW-UP': 15, 'doctor': 6}
+• by status: {'CMNP': 243, 'PNR': 131, 'BK': 20, 'CN': 2, 'IN': 12, 'CM': 16, 'NS': 4, 'PC': 2, 'CK': 159, 'RED': 6, 'RES': 2}
 
-## Last 7 days (counts only — no patient data)
-• appointments returned: 30
-• by channel: {'Online-Appointment': 26, 'Walkin': 3, 'staff': 1}
-• by status: {'CMNP': 18, 'PNR': 9, 'BK': 2, 'CN': 1}
-
-✅ **Verdict:** eka.care booking data is readable from the cloud — counts, channel, and status. This is what closes click → consult attribution. No patient identifiers touched.
+✅ **Verdict:** full booking totals now read correctly from the cloud (paginated). Counts, channel, status only — no patient data.
 
 ---
 _Read-only. No secrets, no patient data printed._
