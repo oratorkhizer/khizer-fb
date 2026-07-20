@@ -17,21 +17,6 @@ METRIC_HINTS = ["reach","impressions","likes","reactions","comments","shares",
 report = []
 def out(s=""): report.append(s); print(s)
 
-def req(method, url, wsid=None, timeout=25):
-    h = {"Authorization": f"Bearer-API {KEY}", "Content-Type": "application/json"}
-    if wsid: h["Publer-Workspace-Id"] = wsid
-    r = urllib.request.Request(url, method=method, headers=h)
-    try:
-        with urllib.request.urlopen(r, timeout=timeout) as resp:
-            body = resp.read().decode("utf-8", "replace")
-            try: data = json.loads(body)
-            except Exception: data = body[:400]
-            return resp.status, data
-    except urllib.error.HTTPError as e:
-        return e.code, (e.read().decode("utf-8","replace")[:300] if e.fp else "")
-    except Exception as e:
-        return None, f"ERR {type(e).__name__}: {e}"
-
 def find_metrics(obj, found=None, depth=0):
     found = found if found is not None else set()
     if depth > 4: return found
@@ -49,19 +34,64 @@ if not KEY:
     out("❌ No PUBLER_API_KEY found in the environment. Add it as a GitHub secret and re-run.")
     open("engine_probe_report.md","w").write("\n".join(report)); raise SystemExit(0)
 
-base=None; wsid=None; wsname=None
+out(f"key length seen: {len(KEY)} chars (should be a long string; 0 = secret not wired up)\n")
+
+def try_auth(url, headers):
+    r = urllib.request.Request(url, method="GET", headers=headers)
+    try:
+        with urllib.request.urlopen(r, timeout=25) as resp:
+            body = resp.read().decode("utf-8","replace")
+            try: data=json.loads(body)
+            except Exception: data=body[:300]
+            return resp.status, data
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8","replace")[:300] if e.fp else ""
+        return e.code, body
+    except Exception as e:
+        return None, f"ERR {type(e).__name__}: {e}"
+
+AUTH_VARIANTS = [
+    ("Authorization: Bearer-API",   {"Authorization": f"Bearer-API {KEY}"}),
+    ("Authorization: Bearer",       {"Authorization": f"Bearer {KEY}"}),
+    ("Authorization: <key>",        {"Authorization": KEY}),
+    ("Api-Key header",              {"Api-Key": KEY}),
+    ("X-Api-Key header",            {"X-Api-Key": KEY}),
+]
+base=None; wsid=None; wsname=None; good_headers=None
+out("## Auth format probe (finding the header Publer accepts)")
 for b in BASES:
-    st, data = req("GET", f"{b}/workspaces")
-    if st == 200 and isinstance(data, list) and data:
-        base=b; wsid=str(data[0].get("id")); wsname=data[0].get("name")
-        out(f"✅ Auth OK. Base `{b}`. Workspace: **{wsname}** (id ends …{wsid[-4:] if wsid else '?'}). "
-            f"{len(data)} workspace(s).")
-        break
-    else:
-        out(f"• `{b}/workspaces` → HTTP {st}")
+    for name, hdr in AUTH_VARIANTS:
+        h = {"Content-Type":"application/json", **hdr}
+        st, data = try_auth(f"{b}/workspaces", h)
+        ok = st==200 and isinstance(data, list) and data
+        out(f"• `{b.split('//')[1].split('/')[0]}` + {name} → HTTP {st}"
+            + (f"  ⟶  {str(data)[:120]}" if not ok else "  ✅ WORKS"))
+        if ok:
+            base=b; wsid=str(data[0].get("id")); wsname=data[0].get("name"); good_headers=h
+            break
+    if base: break
 if not base:
-    out("\n❌ Could not authenticate / list workspaces. The key or plan may be wrong.")
-    open("engine_probe_report.md","w").write("\n".join(report)); raise SystemExit(0)
+    out("\n❌ No auth format worked. Most likely: the API isn't enabled on the free trial, "
+        "the key lacks the `workspaces` scope, or Publer blocks datacenter IPs. See the error "
+        "bodies above — 'invalid token' = key/format issue; 'forbidden'/'plan' = trial/plan; "
+        "an HTML/Cloudflare page = IP block.")
+    open("engine_probe_report.md","w",encoding="utf-8").write("\n".join(report)); raise SystemExit(0)
+_authname = [k for k in good_headers if k != "Content-Type"][0]
+out(f"\n✅ Auth OK via **{_authname}**. Workspace: **{wsname}**.")
+
+def req(method, url, wsid=None, timeout=25):
+    h = {"Content-Type":"application/json", **good_headers}
+    if wsid: h["Publer-Workspace-Id"] = wsid
+    r = urllib.request.Request(url, method=method, headers=h)
+    try:
+        with urllib.request.urlopen(r, timeout=timeout) as resp:
+            body=resp.read().decode("utf-8","replace")
+            try: return resp.status, json.loads(body)
+            except Exception: return resp.status, body[:400]
+    except urllib.error.HTTPError as e:
+        return e.code, (e.read().decode("utf-8","replace")[:300] if e.fp else "")
+    except Exception as e:
+        return None, f"ERR {type(e).__name__}: {e}"
 
 st, data = req("GET", f"{base}/posts?state=scheduled&page=1", wsid)
 n_sched = (data.get("total") if isinstance(data, dict) else None)
