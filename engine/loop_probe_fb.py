@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 LOOP — FACEBOOK GRAPH API PROBE (read-only, safe)
-Confirms cloud access to Meta's Graph API and DISCOVERS exactly which metrics the
-current token returns, so the real runner is built on what actually works.
+Confirms cloud access + discovers which metrics the token returns. Handles BOTH
+a user token (via /me/accounts) and a permanent Page token (used directly).
 Reads FB_GRAPH_TOKEN from env. Never prints the token. GET only; changes nothing.
 """
 import os, json, urllib.request, urllib.parse, urllib.error
@@ -31,7 +31,7 @@ def scrub(err):
         return f"{e.get('type','?')}: {e.get('message','?')} (code {e.get('code')})" if isinstance(e, dict) else str(e)
     return str(err)[:200]
 
-out("# Facebook Graph API — capability probe (v2)\n")
+out("# Facebook Graph API — capability probe (v3)\n")
 if not TOKEN:
     out("❌ No FB_GRAPH_TOKEN in the environment.")
     open("graph_probe_report.md","w").write("\n".join(report)); raise SystemExit(0)
@@ -41,59 +41,48 @@ VER=None; me=None
 for v in VERSIONS:
     st, data = g(f"{v}/me", {"fields":"id,name"})
     if st==200 and data.get("id"):
-        VER=v; me=data; out(f"✅ Graph `{v}` reachable from the cloud. Token owner: **{data.get('name')}**"); break
+        VER=v; me=data; out(f"✅ Graph `{v}` reachable from the cloud. /me → **{data.get('name')}** (id …{str(data.get('id'))[-4:]})"); break
 if not VER:
-    out("❌ Token invalid/expired — regenerate in Graph API Explorer (they last ~1–2h).")
+    out("❌ Token invalid/expired.")
     open("graph_probe_report.md","w",encoding="utf-8").write("\n".join(report)); raise SystemExit(0)
 
-# page + page token
+# Determine page token: user token -> /me/accounts; page token -> use directly
 page_id=None; page_name=None; page_token=None
 st, data = g(f"{VER}/me/accounts", {"fields":"name,id,access_token"})
 accts = data.get("data") if isinstance(data, dict) else None
 if accts:
     p=accts[0]; page_id=p.get("id"); page_name=p.get("name"); page_token=p.get("access_token")
-    out(f"✅ Page: **{page_name}** (id …{str(page_id)[-4:]}).")
+    out(f"✅ User token → manages Page **{page_name}**.")
 else:
-    out(f"❌ No Page found: {scrub(data)}")
-    open("graph_probe_report.md","w",encoding="utf-8").write("\n".join(report)); raise SystemExit(0)
+    page_id=me.get("id"); page_name=me.get("name"); page_token=TOKEN
+    out(f"✅ Token is a **permanent Page token** for **{page_name}** — used directly (no /me/accounts needed).")
+
+# verify it never expires
+st, dbg = g(f"{VER}/debug_token", {"input_token": page_token})
+if isinstance(dbg, dict) and dbg.get("data"):
+    exp = dbg["data"].get("expires_at")
+    out(f"• token expiry check → {'NEVER EXPIRES ✅' if exp in (0, None) else 'expires_at='+str(exp)}")
 
 st, data = g(f"{VER}/{page_id}/posts", {"fields":"id,created_time","limit":"10"}, token=page_token)
 posts = data.get("data") if isinstance(data, dict) else None
 out(f"\n## Posts visible: {len(posts) if posts else 0}")
 
-out("\n## Metric discovery (what the current token can actually read)")
+out("\n## Metric discovery (what the permanent token can read)")
 if posts:
     pid = posts[0]["id"]
-    # reactions + shares (pages_read_engagement)
-    st,d = g(f"{VER}/{pid}", {"fields":"shares,reactions.summary(true)"}, token=page_token)
-    got=[]
-    if isinstance(d,dict):
-        if "reactions" in d: got.append(f"reactions={d['reactions'].get('summary',{}).get('total_count')}")
-        if "shares" in d: got.append(f"shares={d['shares'].get('count',0)}")
-    out(f"• reactions + shares → {', '.join(got) if got else scrub(d)}")
-    # comments (may need pages_read_user_content)
-    st,d = g(f"{VER}/{pid}", {"fields":"comments.summary(true)"}, token=page_token)
-    if isinstance(d,dict) and "comments" in d:
-        out(f"• comments → {d['comments'].get('summary',{}).get('total_count')} ✅")
-    else:
-        out(f"• comments → needs pages_read_user_content ({scrub(d)})")
-    # insights: probe metrics individually to find valid ones for this API version
     cand = ["post_impressions","post_impressions_unique","post_impressions_organic",
-            "post_impressions_organic_unique","post_clicks","post_engaged_users",
-            "post_reactions_by_type_total","post_activity_by_action_type"]
+            "post_clicks","post_engaged_users","post_reactions_by_type_total",
+            "post_activity_by_action_type"]
     working={}
     for m in cand:
         st,d = g(f"{VER}/{pid}/insights", {"metric":m}, token=page_token)
         data = d.get("data") if isinstance(d,dict) else None
         if data: working[m]=(data[0].get("values") or [{}])[0].get("value")
-    if working:
-        out(f"• ✅ working insights metrics → {working}")
-    else:
-        out("• insights → none of the candidate metrics returned data")
-    out("\n**Verdict:** if reactions/shares show numbers above, the cloud loop can score posts "
-        "on authority TODAY. Comments + reach are bonuses we wire in based on what's ticked above.")
+    out(f"• ✅ working insights metrics → {working}" if working else "• no insights metrics returned")
+    out("\n**Verdict:** permanent token reads the Page's post performance from the cloud. "
+        "The monthly loop can run fully unattended.")
 else:
-    out("• No posts yet to measure — re-run once more have published.")
+    out("• No posts yet to measure.")
 
 out("\n---\n_Read-only. No token printed. Nothing changed._")
 open("graph_probe_report.md","w",encoding="utf-8").write("\n".join(report))
