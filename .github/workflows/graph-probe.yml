@@ -1,0 +1,25 @@
+name: graph-probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run read-only Facebook Graph API probe
+        env:
+          FB_GRAPH_TOKEN: ${{ secrets.FB_GRAPH_TOKEN }}
+        run: python engine/loop_probe_fb.py
+      - name: Commit report
+        run: |
+          git config user.name "khizer-bot"
+          git config user.email "khizer-bot@users.noreply.github.com"
+          git add graph_probe_report.md
+          git commit -m "probe: Facebook Graph API capability report" || echo "no changes"
+          git push
+
