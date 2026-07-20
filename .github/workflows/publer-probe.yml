@@ -1,0 +1,24 @@
+name: publer-probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run read-only Publer API probe
+        env:
+          PUBLER_API_KEY: ${{ secrets.PUBLER_API_KEY }}
+        run: python engine/loop_probe.py
+      - name: Commit capability report
+        run: |
+          git config user.name "khizer-bot"
+          git config user.email "khizer-bot@users.noreply.github.com"
+          git add engine_probe_report.md
+          git commit -m "probe: Publer API capability report" || echo "no changes"
+          git push
