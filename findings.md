@@ -1,26 +1,26 @@
-# Marketing loop — findings (2026-08-27)
+# Marketing loop — findings (2026-09-27)
 
 ## Facebook — post performance
-• analysed 30 published post(s) in the last 30 days.
-• total link clicks (funnel signal): 69
+• analysed 31 published post(s) in the last 30 days.
+• total link clicks (funnel signal): 76
 
 **Top posts by authority:**
-- +2.15  “A proud moment on stage at our Diabesity Expo — the launch of Dr Amree…”  (react 13, comm 3, share 0, clicks 26)
-- +1.40  “One of the proudest moments of my journey — launching my book, ‘The 4 …”  (react 5, comm 3, share 0, clicks 5)
-- +0.58  “Back to the classroom — at the Indian Institute of Management, Ahmedab…”  (react 3, comm 2, share 0, clicks 6)
-- +0.58  “Part of a national consensus group on diabetes — the rooms where docto…”  (react 3, comm 2, share 0, clicks 6)
-- +0.39  “That "sugar-free" biscuit packet is quietly fooling your whole khandaa…”  (react 1, comm 2, share 0, clicks 0)
+- +1.84  “On a branch at Chacha Nehru Park with two of my children. 🌳 Being a fa…”  (react 18, comm 2, share 0, clicks 13)
+- +1.60  “A quiet evening at home, upskilling with a video tutorial. 💻 The learn…”  (react 14, comm 2, share 0, clicks 10)
+- +1.19  “In the audience at a medical conference. 📚 This is where next year's b…”  (react 7, comm 2, share 0, clicks 3)
+- +0.26  “After a cricket match with the Caspian Healthcare team. 🏏 A team that …”  (react 8, comm 1, share 0, clicks 17)
+- +0.20  “Caught wearing my daughter's cap. 😊 The people who keep me going aren'…”  (react 7, comm 1, share 0, clicks 17)
 
 **Weakest:**
-- -0.33  “Does a loved one's vision go blurry after a big meal, then clear up ag…”
-- -0.33  “Same food, same plate — but the ORDER you eat it changes the sugar. 🥗…”
-- -0.33  “A small cut on the foot can go unnoticed for weeks — because diabetes …”
+- -0.21  “"We only buy brown bread now." Have you actually read the packet? 🍞…”
+- -0.21  “Diabetes can quietly steal eyesight long before anything feels wrong. …”
+- -1.20  “FibroScan Liver Camp at Caspian…”
 
 ## eka.care — real bookings (attribution)
 • window: last 30 days | scope: doctor 174503924514434
-• total appointments: **1614**
-• by channel: {'Online-Appointment': 1321, 'Walkin': 184, 'staff': 106, 'FOLLOW-UP': 3}
-• by status: {'CMNP': 999, 'PNR': 449, 'CK': 52, 'BK': 50, 'RES': 53, 'NS': 2, 'CM': 1, 'IN': 4, 'CN': 3, 'CNS': 1}
+• total appointments: **1484**
+• by channel: {'Online-Appointment': 1185, 'Walkin': 206, 'staff': 89, 'FOLLOW-UP': 4}
+• by status: {'CMNP': 996, 'PNR': 425, 'CN': 6, 'RES': 35, 'CK': 7, 'BK': 7, 'IN': 5, 'NS': 1, 'CNS': 2}
 
 ---
 _Read-only. No patient data, no secrets printed._
