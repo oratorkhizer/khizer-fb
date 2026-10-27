@@ -1,26 +1,26 @@
-# Marketing loop — findings (2026-09-27)
+# Marketing loop — findings (2026-10-27)
 
 ## Facebook — post performance
 • analysed 31 published post(s) in the last 30 days.
-• total link clicks (funnel signal): 76
+• total link clicks (funnel signal): 89
 
 **Top posts by authority:**
-- +1.84  “On a branch at Chacha Nehru Park with two of my children. 🌳 Being a fa…”  (react 18, comm 2, share 0, clicks 13)
-- +1.60  “A quiet evening at home, upskilling with a video tutorial. 💻 The learn…”  (react 14, comm 2, share 0, clicks 10)
-- +1.19  “In the audience at a medical conference. 📚 This is where next year's b…”  (react 7, comm 2, share 0, clicks 3)
-- +0.26  “After a cricket match with the Caspian Healthcare team. 🏏 A team that …”  (react 8, comm 1, share 0, clicks 17)
-- +0.20  “Caught wearing my daughter's cap. 😊 The people who keep me going aren'…”  (react 7, comm 1, share 0, clicks 17)
+- +2.31  “With members of DARE — Dr Khabeer, Dr Ateeq Ur Rahman, Dr Mujtaba Ali,…”  (react 14, comm 1, share 1, clicks 45)
+- +1.93  “On stage with Dr Amreen at our World Diabetes & Children’s Day expo. 💛…”  (react 9, comm 1, share 1, clicks 7)
+- +1.40  “Speaking at a medical-education session on the newer medicines transfo…”  (react 8, comm 2, share 0, clicks 6)
+- +1.25  “With Dr Aslam Baba — Chief Gastro Surgeon (Renova Century Hospital) an…”  (react 6, comm 2, share 0, clicks 7)
+- +1.10  “Speaking at DTECH 2026, Mumbai. 🎙️ On a stage or across a desk from yo…”  (react 4, comm 2, share 0, clicks 1)
 
 **Weakest:**
-- -0.21  “"We only buy brown bread now." Have you actually read the packet? 🍞…”
-- -0.21  “Diabetes can quietly steal eyesight long before anything feels wrong. …”
-- -1.20  “FibroScan Liver Camp at Caspian…”
+- -0.39  “That small cut on his foot that just won't heal? Please take it seriou…”
+- -0.39  “If your loved one's breath smells oddly sweet or fruity — please don't…”
+- -0.39  “Your stomach needs about 10 minutes to tell your brain it's full — mos…”
 
 ## eka.care — real bookings (attribution)
 • window: last 30 days | scope: doctor 174503924514434
-• total appointments: **1484**
-• by channel: {'Online-Appointment': 1185, 'Walkin': 206, 'staff': 89, 'FOLLOW-UP': 4}
-• by status: {'CMNP': 996, 'PNR': 425, 'CN': 6, 'RES': 35, 'CK': 7, 'BK': 7, 'IN': 5, 'NS': 1, 'CNS': 2}
+• total appointments: **1200**
+• by channel: {'Online-Appointment': 909, 'Walkin': 181, 'staff': 110}
+• by status: {'PNR': 297, 'CMNP': 668, 'BK': 33, 'RES': 17, 'CK': 175, 'NS': 9, 'CNS': 1}
 
 ---
 _Read-only. No patient data, no secrets printed._
